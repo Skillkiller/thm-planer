@@ -81,6 +81,12 @@ document.addEventListener('DOMContentLoaded', function() {
         title: 'Click for Google',
         url: 'http://google.com/',
         start: '2018-01-28'
+      },
+      {
+        title: 'Konflikt',
+        start: '2023-03-10',
+        display: 'background',
+        color: 'red'
       }
     ]
   });
