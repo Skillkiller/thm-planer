@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
       center: 'title',
       right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
     },
+    themeSystem: '',
     navLinks: true,
     dayMaxEvents: true,
     dayHeaderContent(arg: DayHeaderContentArg) {
