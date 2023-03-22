@@ -4,6 +4,10 @@ import interactionPlugin from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
+import bootstrap5Plugin from '@fullcalendar/bootstrap5';
+
+import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap-icons/font/bootstrap-icons.css'; // webpack uses file-loader to handle font files
 import './index.css';
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -16,13 +20,13 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   let calendar = new Calendar(calendarEl, {
-    plugins: [ interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin ],
+    plugins: [ interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin, bootstrap5Plugin ],
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
       right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
     },
-    themeSystem: '',
+    themeSystem: 'bootstrap5',
     navLinks: true,
     dayMaxEvents: true,
     dayHeaderContent(arg: DayHeaderContentArg) {
