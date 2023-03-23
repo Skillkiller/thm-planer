@@ -1,10 +1,13 @@
-import { Calendar, DayHeaderContentArg } from '@fullcalendar/core';
+import { Calendar, DayHeaderContentArg, EventSourceInput } from '@fullcalendar/core';
 import { Component, createElement } from '@fullcalendar/core/preact';
 import interactionPlugin from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import bootstrap5Plugin from '@fullcalendar/bootstrap5';
+import { VEvent} from './entity'
+
+var ICAL = require("ical.js");
 
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-icons/font/bootstrap-icons.css'; // webpack uses file-loader to handle font files
@@ -14,16 +17,21 @@ import './index.css';
 //https://colorlib.com/wp/bootstrap-drag-and-drop/
 //https://bevacqua.github.io/dragula/
 //https://www.w3schools.com/howto/howto_js_filter_lists.asp
+//https://fullcalendar.io/docs/icalendar
 
+let calendarEl: HTMLElement;
+let calendar: Calendar;
+
+let titles: string[] = [];
 
 document.getElementById("formFileMultiple")?.addEventListener('change', (event: Event) => {
   console.log(event)
   const target = event.target as HTMLInputElement;
 
-  if(!target.files || target.files.length == 0) return;
-  
+  if (!target.files || target.files.length == 0) return;
+
   var reader = new FileReader();
-  
+
   reader.onload = function () {
     parseText(reader.result as string);
   };
@@ -32,11 +40,37 @@ document.getElementById("formFileMultiple")?.addEventListener('change', (event: 
 })
 
 function parseText(input: string) {
+  const parsed = ICAL.parse(input);
+  //parsed[2] beinhaltet alle Events
 
+  let events: EventSourceInput = [];
+  titles = [];
+
+  for (const val of parsed[2]) {
+    if (val[0] != "vevent") continue; //val[0] gibt den typen an
+    const event = mapVEvent(val);
+    events.push(event);
+
+    if (!titles.includes(event.title)) {
+      titles.push(event.title);
+    }
+  }
+  calendar.removeAllEventSources();
+  calendar.addEventSource(events);
+  titles.sort();
+  console.log(titles);
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  let calendarEl: HTMLElement = document.getElementById('calendar')!;
+function mapVEvent(vEventObj: any): VEvent {
+  return {
+    title: vEventObj[1].find((input: any) => input[0] == "summary")[3],
+    start: vEventObj[1].find((input: any) => input[0] == "dtstart")[3],
+    end: vEventObj[1].find((input: any) => input[0] == "dtend")[3]
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  calendarEl = document.getElementById('calendar')!;
 
   class CustomDayHeader extends Component<{ text: string }> {
     render() {
@@ -44,8 +78,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  let calendar = new Calendar(calendarEl, {
-    plugins: [ interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin, bootstrap5Plugin ],
+  calendar = new Calendar(calendarEl, {
+    plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin, bootstrap5Plugin],
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
@@ -56,69 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
     dayMaxEvents: true,
     dayHeaderContent(arg: DayHeaderContentArg) {
       return createElement(CustomDayHeader, { text: arg.text })
-    },
-    events: [
-      {
-        title: 'All Day Event',
-        start: '2018-01-01',
-      },
-      {
-        title: 'Long Event',
-        start: '2018-01-07',
-        end: '2018-01-10'
-      },
-      {
-        groupId: '999',
-        title: 'Repeating Event',
-        start: '2018-01-09T16:00:00'
-      },
-      {
-        groupId: '999',
-        title: 'Repeating Event',
-        start: '2018-01-16T16:00:00'
-      },
-      {
-        title: 'Conference',
-        start: '2018-01-11',
-        end: '2018-01-13'
-      },
-      {
-        title: 'Meeting',
-        start: '2018-01-12T10:30:00',
-        end: '2018-01-12T12:30:00'
-      },
-      {
-        title: 'Lunch',
-        start: '2018-01-12T12:00:00'
-      },
-      {
-        title: 'Meeting',
-        start: '2018-01-12T14:30:00'
-      },
-      {
-        title: 'Happy Hour',
-        start: '2018-01-12T17:30:00'
-      },
-      {
-        title: 'Dinner',
-        start: '2018-01-12T20:00:00'
-      },
-      {
-        title: 'Birthday Party',
-        start: '2018-01-13T07:00:00'
-      },
-      {
-        title: 'Click for Google',
-        url: 'http://google.com/',
-        start: '2018-01-28'
-      },
-      {
-        title: 'Konflikt',
-        start: '2023-03-10',
-        display: 'background',
-        color: 'red'
-      }
-    ]
+    }
   });
 
   calendar.render();
