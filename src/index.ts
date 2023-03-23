@@ -19,9 +19,21 @@ import './index.css';
 document.getElementById("formFileMultiple")?.addEventListener('change', (event: Event) => {
   console.log(event)
   const target = event.target as HTMLInputElement;
+
+  if(!target.files || target.files.length == 0) return;
   
-  console.log(target)
+  var reader = new FileReader();
+  
+  reader.onload = function () {
+    parseText(reader.result as string);
+  };
+
+  reader.readAsText(target.files[0]);
 })
+
+function parseText(input: string) {
+
+}
 
 document.addEventListener('DOMContentLoaded', function() {
   let calendarEl: HTMLElement = document.getElementById('calendar')!;
