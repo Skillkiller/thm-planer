@@ -90,7 +90,8 @@ document.addEventListener('DOMContentLoaded', function () {
     dayMaxEvents: true,
     dayHeaderContent(arg: DayHeaderContentArg) {
       return createElement(CustomDayHeader, { text: arg.text })
-    }
+    },
+    locale: 'DE'
   });
 
   calendar.render();
