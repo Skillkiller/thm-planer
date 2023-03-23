@@ -92,5 +92,4 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   calendar.render();
-  calendar.batchRendering
 });
