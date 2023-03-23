@@ -10,6 +10,19 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-icons/font/bootstrap-icons.css'; // webpack uses file-loader to handle font files
 import './index.css';
 
+//Anschauen
+//https://colorlib.com/wp/bootstrap-drag-and-drop/
+//https://bevacqua.github.io/dragula/
+//https://www.w3schools.com/howto/howto_js_filter_lists.asp
+
+
+document.getElementById("formFileMultiple")?.addEventListener('change', (event: Event) => {
+  console.log(event)
+  const target = event.target as HTMLInputElement;
+  
+  console.log(target)
+})
+
 document.addEventListener('DOMContentLoaded', function() {
   let calendarEl: HTMLElement = document.getElementById('calendar')!;
 
