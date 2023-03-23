@@ -88,9 +88,6 @@ document.addEventListener('DOMContentLoaded', function () {
     themeSystem: 'bootstrap5',
     navLinks: true,
     dayMaxEvents: true,
-    dayHeaderContent(arg: DayHeaderContentArg) {
-      return createElement(CustomDayHeader, { text: arg.text })
-    },
     locale: 'DE'
   });
 
