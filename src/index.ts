@@ -23,17 +23,17 @@ import { en } from '@fullcalendar/core/internal-common';
 
 let calendar: Calendar;
 
-let titlesElement: HTMLElement;
+let fileCardElement: HTMLElement;
 
 let events: EventEntity[] = [];
 
-document.getElementById("allOn")?.addEventListener('click', (event: Event) => {
-  checkBoxesChangeAll(titlesElement, true);
-});
+// document.getElementById("allOn")?.addEventListener('click', (event: Event) => {
+//   checkBoxesChangeAll(titlesElement, true);
+// });
 
-document.getElementById("allOff")?.addEventListener('click', (event: Event) => {
-  checkBoxesChangeAll(titlesElement, false);
-});
+// document.getElementById("allOff")?.addEventListener('click', (event: Event) => {
+//   checkBoxesChangeAll(titlesElement, false);
+// });
 
 document.getElementById("formFileMultiple")?.addEventListener('change', (event: Event) => {
   const target = event.target as HTMLInputElement;
@@ -85,13 +85,23 @@ function parseIcsText(input: string, fileName: string) {
   updateCalenderEvents();
 }
 
-function getModuleTitles(): string[] {
-  return events.map(e => e.moduleId).filter((value, index, array) => array.indexOf(value) === index).sort();
+function uniqueFilter(value: string, index: number, array: string[]): any {
+  return array.indexOf(value) === index;
 }
 
 function rerenderModules() {
-  clearListElements(titlesElement);
-  getModuleTitles().forEach(t => addCheckbox(titlesElement, t, t));
+  clearListElements(fileCardElement);
+
+  //Create card for each file
+  events.map(e => e.fileName).filter(uniqueFilter).sort().forEach((fileName, index) => {
+    addFileCard(fileName, index);
+
+    const parendTitlesElement = document.getElementById(`file-${index}-titles`)!;
+    //Add module checkboxes into card
+    events.filter(e => e.fileName == fileName).map(e => e.moduleId).filter(uniqueFilter).sort().forEach(moduleId => {
+      addCheckbox(parendTitlesElement, moduleId, `${index}-${moduleId}`, fileName);
+    });
+  });
 }
 
 function mapVEvent(vEventObj: any, fileName: string): EventEntity {
@@ -102,7 +112,7 @@ function mapVEvent(vEventObj: any, fileName: string): EventEntity {
     end: vEventObj[1].find((input: any) => input[0] == "dtend")[3],
     moduleId: vEventObj[1].find((input: any) => input[0] == "summary")[3].split(" - ")[0],
     fileName: fileName,
-    displayed: false
+    displayed: false,
   }
 }
 
@@ -111,22 +121,22 @@ function updateCalenderEvents() {
   calendar.addEventSource(events.filter(e => e.displayed));
 }
 
-function toggledCheckbox(event: Event) {
+function toggledCheckbox(event: Event, fileName: string) {
   const target = event.target as HTMLInputElement;
 
-  events.filter(e => e.moduleId == target.id).forEach(e => e.displayed = target.checked);
+  events.filter(e => e.fileName == fileName).filter(e => e.moduleId == target.id.split("-")[1]).forEach(e => e.displayed = target.checked);
   updateCalenderEvents();
 }
 
-function addCheckbox(parendElement: HTMLElement, text: string, id: string) {
+function addCheckbox(parendElement: HTMLElement, text: string, id: string, fileName: string) {
   const formCheckDiv = document.createElement("div");
   formCheckDiv.classList.add("form-check");
 
   const input = document.createElement("input");
   input.classList.add("form-check-input");
   input.type = "checkbox";
-  input.id = id
-  input.addEventListener('change', toggledCheckbox);
+  input.id = id;
+  input.addEventListener('change', (event) => toggledCheckbox(event, fileName));
   input.checked = false;
 
   const label = document.createElement("label");
@@ -139,16 +149,6 @@ function addCheckbox(parendElement: HTMLElement, text: string, id: string) {
   formCheckDiv.appendChild(label);
 }
 
-function checkBoxesChangeAll(parendElement: HTMLElement, checked: boolean) {
-  parendElement.childNodes.forEach(child => {
-    const input = child.firstChild as HTMLInputElement;
-    input.checked = checked;
-  });
-
-  events.forEach(e => e.displayed = checked);
-
-  updateCalenderEvents();
-}
 
 function clearListElements(parendElement: HTMLElement) {
   while (parendElement.hasChildNodes()) {
@@ -156,9 +156,41 @@ function clearListElements(parendElement: HTMLElement) {
   }
 }
 
+function addFileCard(fileName: string, fileNr: number) {
+  fileCardElement.insertAdjacentHTML('beforeend', `
+      <div class="card mb-3">
+        <h5 class="card-header" data-bs-toggle="collapse" href="#file-${fileNr}-collapse" role="button">${fileName}</h5>
+        <div class="card-body collapse show" id="file-${fileNr}-collapse">
+          <p class="card-text"><div id="file-${fileNr}-titles"></div></p>
+          <button id="file-${fileNr}-all-on" class="btn btn-primary" value="${fileNr}">Alle einblenden</button>
+          <button id="file-${fileNr}-all-off" class="btn btn-primary" value="${fileNr}">Alle ausblenden</button>
+        </div>
+      </div>
+  `);
+
+  document.getElementById(`file-${fileNr}-all-on`)!.addEventListener('click', () => {
+    toggleAllCheckboxesFromFile(document.getElementById(`file-${fileNr}-titles`)!, fileName, true);
+  });
+
+  document.getElementById(`file-${fileNr}-all-off`)!.addEventListener('click', () => {
+    toggleAllCheckboxesFromFile(document.getElementById(`file-${fileNr}-titles`)!, fileName, false);
+  });
+}
+
+function toggleAllCheckboxesFromFile(parendElement: HTMLElement, fileName: string, checked: boolean) {
+  parendElement.childNodes.forEach(child => {
+    const input = child.firstChild as HTMLInputElement;
+    input.checked = checked;
+  });
+
+  events.filter(e => e.fileName == fileName).forEach(e => e.displayed = checked);
+
+  updateCalenderEvents();
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   const calendarEl = document.getElementById('calendar')!;
-  titlesElement = document.getElementById('titles')!;
+  fileCardElement = document.getElementById('fileList')!;
 
   class CustomDayHeader extends Component<{ text: string }> {
     render() {
