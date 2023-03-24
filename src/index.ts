@@ -5,7 +5,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import bootstrap5Plugin from '@fullcalendar/bootstrap5';
-import { EventEntity, VEvent } from './entity'
+import { EventEntity, Conflict } from './entity'
 
 var ICAL = require("ical.js");
 require('bootstrap');
@@ -117,8 +117,27 @@ function mapVEvent(vEventObj: any, fileName: string): EventEntity {
 }
 
 function updateCalenderEvents() {
+  //Calculate conflicts
+  let conflicts: Conflict[] = getTimeConflicts(events.filter(e => e.displayed));
+
+  //Add all day conflicts
+  let allDayConflicts: Conflict[] = [];
+  conflicts.map(getAllDayConflict).forEach(c => allDayConflicts.push(c));
+
   calendar.removeAllEventSources();
-  calendar.addEventSource(events.filter(e => e.displayed));
+  let c = [...events.filter(e => e.displayed), ...conflicts, ...allDayConflicts];
+  console.log(c);
+  calendar.addEventSource(c);
+}
+
+function getAllDayConflict(conflict: Conflict): Conflict {
+  return {
+    title: 'Konflikt',
+    color: 'red',
+    display: 'background',
+    start: conflict.start.split("T")[0],
+    end: conflict.end.split("T")[0]
+  }
 }
 
 function toggledCheckbox(event: Event, fileName: string) {
@@ -213,3 +232,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
   calendar.render();
 });
+
+function getTimeConflicts(events: any) {
+  const conflicts: Conflict[] = [];
+  for (let i = 0; i < events.length; i++) {
+    for (let j = i + 1; j < events.length; j++) {
+      const event1 = events[i];
+      const event2 = events[j];
+      if (event1.start < event2.end && event1.end > event2.start) {
+        // Zeitkonflikt gefunden
+        const start = event1.start < event2.start ? event2.start : event1.start;
+        const end = event1.end < event2.end ? event1.end : event2.end;
+        conflicts.push({ start, end, color: "red", display: 'background', title: 'Konflikt' });
+      }
+    }
+  }
+  return conflicts;
+}
