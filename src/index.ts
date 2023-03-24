@@ -5,9 +5,10 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import bootstrap5Plugin from '@fullcalendar/bootstrap5';
-import { EventEntity, VEvent} from './entity'
+import { EventEntity, VEvent } from './entity'
 
 var ICAL = require("ical.js");
+require('bootstrap');
 
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-icons/font/bootstrap-icons.css'; // webpack uses file-loader to handle font files
@@ -36,25 +37,48 @@ document.getElementById("allOff")?.addEventListener('click', (event: Event) => {
 
 document.getElementById("formFileMultiple")?.addEventListener('change', (event: Event) => {
   const target = event.target as HTMLInputElement;
+  console.log(target.files);
 
   if (!target.files || target.files.length == 0) return;
 
-  var reader = new FileReader();
+  events = [];
+  let readers: Promise<string[]>[] = [];
 
-  reader.onload = function () {
-    parseIcsText(reader.result as string);
+  for (let index = 0; index < target.files.length; index++) {
+    const file = target.files.item(index);
+
+    readers.push(readFileAsText(file!));
+  }
+
+  Promise.all(readers).then((values) => {
+    values.forEach(value => parseIcsText(value[1], value[0]));
     rerenderModules();
-  };
+  });
 
-  reader.readAsText(target.files[0]);
 })
 
-function parseIcsText(input: string) {
+function readFileAsText(file: File): Promise<string[]> {
+  return new Promise(function (resolve, reject) {
+    let fr = new FileReader();
+
+    fr.onload = function () {
+      resolve([file.name ,fr.result as string]);
+    };
+
+    fr.onerror = function () {
+      reject(fr);
+    };
+
+    fr.readAsText(file);
+  });
+}
+
+function parseIcsText(input: string, fileName: string) {
   const parsed = ICAL.parse(input);
 
   for (const val of parsed[2]) {
     if (val[0] != "vevent") continue; //val[0] gibt den typen an
-    const event = mapVEvent(val);
+    const event = mapVEvent(val, fileName);
     events.push(event);
   }
 
@@ -70,13 +94,14 @@ function rerenderModules() {
   getModuleTitles().forEach(t => addCheckbox(titlesElement, t, t));
 }
 
-function mapVEvent(vEventObj: any): EventEntity {
+function mapVEvent(vEventObj: any, fileName: string): EventEntity {
   return {
     id: vEventObj[1].find((input: any) => input[0] == "uid")[3],
     title: vEventObj[1].find((input: any) => input[0] == "summary")[3],
     start: vEventObj[1].find((input: any) => input[0] == "dtstart")[3],
     end: vEventObj[1].find((input: any) => input[0] == "dtend")[3],
     moduleId: vEventObj[1].find((input: any) => input[0] == "summary")[3].split(" - ")[0],
+    fileName: fileName,
     displayed: false
   }
 }
@@ -121,7 +146,7 @@ function checkBoxesChangeAll(parendElement: HTMLElement, checked: boolean) {
   });
 
   events.forEach(e => e.displayed = checked);
-  
+
   updateCalenderEvents();
 }
 

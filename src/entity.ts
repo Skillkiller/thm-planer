@@ -4,6 +4,7 @@ export interface EventEntity {
     start: string,
     end: string,
     moduleId: string,
+    fileName: string,
     displayed: boolean
 }
 
