@@ -1,3 +1,12 @@
+export interface EventEntity {
+    id: string,
+    title: string,
+    start: string,
+    end: string,
+    moduleId: string,
+    displayed: boolean
+}
+
 export interface VEvent {
     title: string,
     start: string,

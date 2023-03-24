@@ -5,7 +5,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import bootstrap5Plugin from '@fullcalendar/bootstrap5';
-import { VEvent} from './entity'
+import { EventEntity, VEvent} from './entity'
 
 var ICAL = require("ical.js");
 
@@ -22,12 +22,19 @@ import { en } from '@fullcalendar/core/internal-common';
 
 let calendar: Calendar;
 
-let titles: string[] = [];
-let titleInactiveListElement: HTMLElement;
-let titleActiveListElement: HTMLElement;
+let titlesElement: HTMLElement;
+
+let events: EventEntity[] = [];
+
+document.getElementById("allOn")?.addEventListener('click', (event: Event) => {
+  checkBoxesChangeAll(titlesElement, true);
+});
+
+document.getElementById("allOff")?.addEventListener('click', (event: Event) => {
+  checkBoxesChangeAll(titlesElement, false);
+});
 
 document.getElementById("formFileMultiple")?.addEventListener('change', (event: Event) => {
-  console.log(event)
   const target = event.target as HTMLInputElement;
 
   if (!target.files || target.files.length == 0) return;
@@ -35,47 +42,87 @@ document.getElementById("formFileMultiple")?.addEventListener('change', (event: 
   var reader = new FileReader();
 
   reader.onload = function () {
-    parseText(reader.result as string);
+    parseIcsText(reader.result as string);
+    rerenderModules();
   };
 
   reader.readAsText(target.files[0]);
 })
 
-function parseText(input: string) {
+function parseIcsText(input: string) {
   const parsed = ICAL.parse(input);
-  //parsed[2] beinhaltet alle Events
-
-  let events: EventSourceInput = [];
-  titles = [];
 
   for (const val of parsed[2]) {
     if (val[0] != "vevent") continue; //val[0] gibt den typen an
     const event = mapVEvent(val);
     events.push(event);
-
-    if (!titles.includes(event.title)) {
-      titles.push(event.title);
-    }
   }
-  calendar.removeAllEventSources();
-  calendar.addEventSource(events);
-  titles.sort();
-  console.log(titles);
+
+  updateCalenderEvents();
 }
 
-function mapVEvent(vEventObj: any): VEvent {
+function getModuleTitles(): string[] {
+  return events.map(e => e.moduleId).filter((value, index, array) => array.indexOf(value) === index).sort();
+}
+
+function rerenderModules() {
+  clearListElements(titlesElement);
+  getModuleTitles().forEach(t => addCheckbox(titlesElement, t, t));
+}
+
+function mapVEvent(vEventObj: any): EventEntity {
   return {
+    id: vEventObj[1].find((input: any) => input[0] == "uid")[3],
     title: vEventObj[1].find((input: any) => input[0] == "summary")[3],
     start: vEventObj[1].find((input: any) => input[0] == "dtstart")[3],
-    end: vEventObj[1].find((input: any) => input[0] == "dtend")[3]
+    end: vEventObj[1].find((input: any) => input[0] == "dtend")[3],
+    moduleId: vEventObj[1].find((input: any) => input[0] == "summary")[3].split(" - ")[0],
+    displayed: false
   }
 }
 
-function addListElement(parendElement: HTMLElement) {
-  const entry = document.createElement("li");
-  entry.classList.add("list-group-item");
-  entry.innerText = "Test";
-  parendElement.appendChild(entry);
+function updateCalenderEvents() {
+  calendar.removeAllEventSources();
+  calendar.addEventSource(events.filter(e => e.displayed));
+}
+
+function toggledCheckbox(event: Event) {
+  const target = event.target as HTMLInputElement;
+
+  events.filter(e => e.moduleId == target.id).forEach(e => e.displayed = target.checked);
+  updateCalenderEvents();
+}
+
+function addCheckbox(parendElement: HTMLElement, text: string, id: string) {
+  const formCheckDiv = document.createElement("div");
+  formCheckDiv.classList.add("form-check");
+
+  const input = document.createElement("input");
+  input.classList.add("form-check-input");
+  input.type = "checkbox";
+  input.id = id
+  input.addEventListener('change', toggledCheckbox);
+  input.checked = false;
+
+  const label = document.createElement("label");
+  label.classList.add("form-check-label");
+  label.htmlFor = input.id;
+  label.innerText = text;
+
+  parendElement.appendChild(formCheckDiv);
+  formCheckDiv.appendChild(input);
+  formCheckDiv.appendChild(label);
+}
+
+function checkBoxesChangeAll(parendElement: HTMLElement, checked: boolean) {
+  parendElement.childNodes.forEach(child => {
+    const input = child.firstChild as HTMLInputElement;
+    input.checked = checked;
+  });
+
+  events.forEach(e => e.displayed = checked);
+  
+  updateCalenderEvents();
 }
 
 function clearListElements(parendElement: HTMLElement) {
@@ -86,8 +133,7 @@ function clearListElements(parendElement: HTMLElement) {
 
 document.addEventListener('DOMContentLoaded', function () {
   const calendarEl = document.getElementById('calendar')!;
-  titleInactiveListElement = document.getElementById('title-inactive')!;
-  titleActiveListElement = document.getElementById('title-active')!;
+  titlesElement = document.getElementById('titles')!;
 
   class CustomDayHeader extends Component<{ text: string }> {
     render() {
@@ -109,6 +155,4 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   calendar.render();
-  addListElement(titleInactiveListElement)
-  clearListElements(titleInactiveListElement)
 });
