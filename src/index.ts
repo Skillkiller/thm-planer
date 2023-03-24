@@ -27,6 +27,15 @@ let fileCardElement: HTMLElement;
 
 let events: EventEntity[] = [];
 
+const dateStringOptions: Intl.DateTimeFormatOptions = {
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  year: '2-digit',
+  month: '2-digit',
+  day: '2-digit'
+};
+
 // document.getElementById("allOn")?.addEventListener('click', (event: Event) => {
 //   checkBoxesChangeAll(titlesElement, true);
 // });
@@ -123,6 +132,8 @@ function updateCalenderEvents() {
   //Add all day conflicts
   let allDayConflicts: Conflict[] = [];
   conflicts.map(getAllDayConflict).forEach(c => allDayConflicts.push(c));
+
+  displayConflicts(conflicts);
 
   calendar.removeAllEventSources();
   let c = [...events.filter(e => e.displayed), ...conflicts, ...allDayConflicts];
@@ -248,4 +259,20 @@ function getTimeConflicts(events: any) {
     }
   }
   return conflicts;
+}
+
+function displayConflicts(conflicts: Conflict[]) {
+  const now = new Date();
+  const conflictFiltered = conflicts.filter(c => new Date(c.end) > now);
+  document.getElementById("conflict-counter")!.innerText = String(conflictFiltered.length);
+
+  const conflictListElement = document.getElementById("conflicts")!;
+  clearListElements(conflictListElement);
+
+  conflictFiltered.sort((c1, c2) => Date.parse(c1.start) - Date.parse(c2.start)).forEach(c => {
+    const entry = document.createElement("li");
+    entry.classList.add("list-group-item");
+    entry.innerText = `${new Date(c.start).toLocaleDateString()}: ${new Date(c.start).toLocaleTimeString()} bis ${new Date(c.end).toLocaleTimeString()}`;
+    conflictListElement.appendChild(entry);
+  });
 }
