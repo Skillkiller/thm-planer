@@ -1,30 +1,38 @@
+# Stundenplan-Planungshilfe für Studierende der Technischen Hochschule Mittelhessen
 
-# FullCalendar TypeScript Example Project
+Dieses Projekt ist eine Webseite, die Studierenden der Technischen Hochschule Mittelhessen bei der Planung ihres Stundenplans hilft. Mithilfe der Webseite können die Studierenden einzelne Module auswählen und ihren Stundenplan auf diese Weise zusammenstellen. Ein Kalender zeigt die ausgewählten Module an und markiert zeitliche Konflikte farblich.
 
-This is a fully-buildable example project for FullCalendar and [TypeScript], leveraging [Webpack] and [ts-loader].
+Bitte beachten Sie, dass diese Webseite die Stundenplan Informationen lokal auf dem Computer des Benutzers verarbeitet und dass der Server nur die statischen Webseiteninhalte bereitstellt. Es werden keine Stundenplan Informationen an den Server gesendet oder von diesem empfangen. Die Verarbeitung erfolgt vollständig auf dem Computer des Benutzers.
 
-[More information on setting up TypeScript with Webpack &raquo;](https://www.typescriptlang.org/docs/handbook/react-&-webpack.html)
+Die Webseite ist unter folgender URL erreichbar: https://thm-planer.skillkiller.de/
 
+## Abhängigkeiten
 
-## Installation
+Das Projekt nutzt folgende wichtige Abhängigkeiten:
 
-```bash
-git clone https://github.com/fullcalendar/fullcalendar-examples.git
-cd fullcalendar-examples/typescript
-npm install
-```
+- [ical.js](https://github.com/mozilla-comm/ical.js/): Eine JavaScript-Bibliothek zum Parsen von iCalendar-Dateien.
+- [Bootstrap](https://getbootstrap.com/): Ein CSS-Framework zum schnellen Entwickeln von responsiven Webseiten.
+- [FullCalendar](https://fullcalendar.io/): Eine JavaScript-Bibliothek zum Erstellen von interaktiven Kalendern.
 
-## Build Commands
+## Verwendete Technologien
 
-```bash
-npm run build
-npm run watch # continously build
-npm run clean # start fresh
-```
+Das Projekt basiert auf folgenden Technologien:
 
-After running `build` or `watch`, open up `dist/index.html` in a browser.
+- HTML
+- CSS
+- TypeScript
+- Webpack
 
+## Lokales Bauen des Projekts
 
-[TypeScript]: https://www.typescriptlang.org/
-[Webpack]: https://webpack.js.org/
-[ts-loader]: https://github.com/TypeStrong/ts-loader
+Um das Projekt lokal zu bauen, müssen die folgenden Schritte ausgeführt werden:
+
+1. Stellen Sie sicher, dass Node.js auf Ihrem Computer installiert ist.
+2. Öffnen Sie ein Terminal oder eine Befehlszeile im Hauptverzeichnis des Projekts.
+3. Führen Sie den Befehl `npm install` aus, um die Abhängigkeiten des Projekts zu installieren.
+4. Führen Sie den Befehl `npm run build` aus, um das Projekt zu bauen.
+5. Das gebaute Projekt befindet sich nun im `dist`-Verzeichnis.
+
+## Lizenz
+
+Dieses Projekt ist unter der MIT-Lizenz lizenziert. Weitere Informationen zur Lizenzierung finden Sie in der Datei `LICENSE`.
