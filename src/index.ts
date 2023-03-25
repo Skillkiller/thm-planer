@@ -13,13 +13,7 @@ require('bootstrap');
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-icons/font/bootstrap-icons.css'; // webpack uses file-loader to handle font files
 import './index.css';
-import { en } from '@fullcalendar/core/internal-common';
 
-//Anschauen
-//https://colorlib.com/wp/bootstrap-drag-and-drop/
-//https://bevacqua.github.io/dragula/
-//https://www.w3schools.com/howto/howto_js_filter_lists.asp
-//https://fullcalendar.io/docs/icalendar
 
 let calendar: Calendar;
 
@@ -35,14 +29,6 @@ const dateStringOptions: Intl.DateTimeFormatOptions = {
   month: '2-digit',
   day: '2-digit'
 };
-
-// document.getElementById("allOn")?.addEventListener('click', (event: Event) => {
-//   checkBoxesChangeAll(titlesElement, true);
-// });
-
-// document.getElementById("allOff")?.addEventListener('click', (event: Event) => {
-//   checkBoxesChangeAll(titlesElement, false);
-// });
 
 document.getElementById("formFileMultiple")?.addEventListener('change', (event: Event) => {
   const target = event.target as HTMLInputElement;
