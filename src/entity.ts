@@ -5,13 +5,17 @@ export interface EventEntity {
     end: string,
     moduleId: string,
     fileName: string,
-    displayed: boolean
+    displayed: boolean,
+    color?: string,
+    textColor?: string,
 }
 
 export interface VEvent {
     title: string,
     start: string,
     end: string
+    color?: string,
+    textColor?: string,
 }
 
 export interface Conflict {

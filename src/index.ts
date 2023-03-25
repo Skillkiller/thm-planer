@@ -114,15 +114,29 @@ function rerenderModules() {
 }
 
 function mapVEvent(vEventObj: any, fileName: string): EventEntity {
-  return {
+  let event: EventEntity = {
     id: vEventObj[1].find((input: any) => input[0] == "uid")[3],
     title: vEventObj[1].find((input: any) => input[0] == "summary")[3],
     start: vEventObj[1].find((input: any) => input[0] == "dtstart")[3],
     end: vEventObj[1].find((input: any) => input[0] == "dtend")[3],
     moduleId: vEventObj[1].find((input: any) => input[0] == "summary")[3].split(" - ")[0],
     fileName: fileName,
-    displayed: false,
+    displayed: false
   }
+  
+  if (event.title.endsWith(" - Vorlesung")) {
+    event.color = "#3788d8";
+  } else if(event.title.endsWith(" - Übung")) {
+    event.color = "#ede99d";
+    event.textColor = "black";
+  } else if (event.title.endsWith(" - Praktikum")) {
+    event.color = "#5a228b"
+  } else {
+    event.color = "#d2c2d1";
+    event.textColor = "black";
+  }
+
+  return event;
 }
 
 function updateCalenderEvents() {
