@@ -6,6 +6,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import bootstrap5Plugin from '@fullcalendar/bootstrap5';
 import { EventEntity, Conflict } from './entity'
+import deLocale from '@fullcalendar/core/locales/de';
 
 var ICAL = require("ical.js");
 require('bootstrap');
@@ -236,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function () {
     themeSystem: 'bootstrap5',
     navLinks: true,
     dayMaxEvents: true,
-    locale: 'DE'
+    locale: deLocale
   });
 
   calendar.render();
