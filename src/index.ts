@@ -46,7 +46,6 @@ const dateStringOptions: Intl.DateTimeFormatOptions = {
 
 document.getElementById("formFileMultiple")?.addEventListener('change', (event: Event) => {
   const target = event.target as HTMLInputElement;
-  console.log(target.files);
 
   if (!target.files || target.files.length == 0) return;
 
@@ -151,7 +150,6 @@ function updateCalenderEvents() {
 
   calendar.removeAllEventSources();
   let c = [...events.filter(e => e.displayed), ...conflicts, ...allDayConflicts];
-  console.log(c);
   calendar.addEventSource(c);
 }
 
