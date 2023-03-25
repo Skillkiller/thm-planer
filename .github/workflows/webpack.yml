@@ -30,7 +30,7 @@ jobs:
 
     - name: Build
       run: |
-        npm install
+        npm ci
         npx webpack
 
     - name: Upload static page
