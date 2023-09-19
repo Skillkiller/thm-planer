@@ -14,6 +14,7 @@ require('bootstrap');
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-icons/font/bootstrap-icons.css'; // webpack uses file-loader to handle font files
 import './index.css';
+import '/sitemap.txt'
 import '/img/step2.png'
 import '/img/step3.png'
 import '/img/step4.png'
